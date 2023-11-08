@@ -23,10 +23,15 @@ SET(sources
 )
 
 
-ADD_LIBRARY(compiled OBJECT ${sources} ${headers})
-ADD_LIBRARY(smpp SHARED $<TARGET_OBJECTS:compiled>)
+ADD_LIBRARY(smpp STATIC ${sources} ${headers})
 SET_TARGET_PROPERTIES(smpp PROPERTIES VERSION 1.0.0 SOVERSION 1 PUBLIC_HEADER "${headers}")
-TARGET_LINK_LIBRARIES(smpp ${link_libs})
+TARGET_LINK_LIBRARIES(smpp PUBLIC
+	Boost::boost
+	Boost::date_time
+	glog::glog
+	gflags::gflags
+	$<$<CXX_COMPILER_ID:MSVC>:Ws2_32>
+)
 
 SET(CMAKE_INSTALL_LIBDIR lib CACHE PATH "Output directory for libraries")
 SET(CMAKE_INSTALL_HEADERDIR include CACHE PATH "Output directory for headers")

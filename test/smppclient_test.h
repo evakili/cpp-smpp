@@ -5,7 +5,9 @@
 
 #pragma once
 
-#include <asio.hpp>
+#include <boost/asio.hpp>
+namespace asio = boost::asio;
+
 #include <memory>
 #include <string>
 
@@ -16,7 +18,7 @@
 class SmppClientTest: public testing::Test {
  public:
   asio::ip::tcp::endpoint endpoint_;
-  asio::io_service ios_;
+  asio::io_context ios_;
   std::shared_ptr<asio::ip::tcp::socket> socket_;
   std::shared_ptr<smpp::SmppClient> client_;
 
@@ -24,7 +26,7 @@ class SmppClientTest: public testing::Test {
     endpoint_(asio::ip::address_v4::from_string(FLAGS_host), FLAGS_port),
     ios_(),
     socket_(std::shared_ptr<asio::ip::tcp::socket>(new asio::ip::tcp::socket(ios_))),
-    client_(std::shared_ptr<smpp::SmppClient>(new smpp::SmppClient(socket_))) {
+    client_(std::shared_ptr<smpp::SmppClient>(new smpp::SmppClient(socket_, ios_))) {
   }
 
   virtual void SetUp() {
@@ -43,7 +45,7 @@ class SmppClientTest: public testing::Test {
 class SmppClientCsmsTest : public testing::Test {
  public:
   asio::ip::tcp::endpoint endpoint_;
-  asio::io_service ios_;
+  asio::io_context ios_;
   std::shared_ptr<asio::ip::tcp::socket> socket_;
   smpp::SmppClient client_;
   smpp::SmppAddress sender_;
@@ -58,7 +60,7 @@ class SmppClientCsmsTest : public testing::Test {
     endpoint_(asio::ip::address_v4::from_string(FLAGS_host), FLAGS_port),
     ios_(),
     socket_(std::shared_ptr<asio::ip::tcp::socket>(new asio::ip::tcp::socket(ios_))),
-    client_(socket_),
+    client_(socket_, ios_),
     sender_(FLAGS_sender, smpp::TON::ALPHANUMERIC, smpp::NPI::UNKNOWN),
     receiver_(FLAGS_receiver, smpp::TON::INTERNATIONAL, smpp::NPI::E164),
     message_170_("Lorem ipsum dolor sit amet, consectetur adipiscing elit. "

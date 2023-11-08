@@ -1,0 +1,13 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+    "name": "cpp-smpp",
+    "version": "0.0.1",
+    "dependencies": [
+        "boost-core",
+        "boost-asio",
+        "boost-date-time",
+        "gtest",
+        "gflags",
+        "glog"
+    ]
+}

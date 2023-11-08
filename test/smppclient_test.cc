@@ -12,8 +12,11 @@
 #include <tuple>
 
 #include "./smppclient_test.h"
-#include "asio.hpp"
-#include "gtest/gtest.h"
+
+#include <boost/asio.hpp>
+namespace asio = boost::asio;
+
+#include <gtest/gtest.h>
 #include "smpp/gsmencoding.h"
 #include "smpp/smpp_params.h"
 #include "smpp/timeformat.h"
@@ -123,10 +126,9 @@ TEST_F(SmppClientTest, submitExtended) {
   params.priority_flag = smpp::Priority::GSM_PRIORITY;
   params.registered_delivery = smpp::RegisteredDelivery::DELIVERY_SMSC_BOTH;
 
-  time_t now = time(0);
-  struct tm tm;
-  localtime_r(&now, &tm);
-  params.schedule_delivery_time = smpp::timeformat::ToSmppTimeString(tm);
+  time_t now = time(nullptr);
+  auto tm = localtime(&now);
+  params.schedule_delivery_time = smpp::timeformat::ToSmppTimeString(*tm);
   params.validity_period = smpp::timeformat::ToSmppTimeString(std::chrono::hours(1));  // valid for one hour
   params.data_coding = smpp::DataCoding::ISO8859_1;
 

@@ -17,3 +17,5 @@ ext/
 Testing/
 .ycm_extra_conf.pyc
 oc_test.flags
+.vscode/
+build*/

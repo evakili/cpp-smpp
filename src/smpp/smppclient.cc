@@ -28,18 +28,19 @@ using std::pair;
 using std::placeholders::_1;
 using std::placeholders::_2;
 using std::shared_ptr;
-using asio::system_error;
-using asio::error_code;
+using boost::system::system_error;
+using boost::system::error_code;
 using asio::ip::tcp;
 using asio::async_write;
 using asio::buffer;
 
-SmppClient::SmppClient(shared_ptr<tcp::socket> socket) :
+SmppClient::SmppClient(shared_ptr<tcp::socket> socket, asio::io_context& ctx) :
   csms_method_(SmppClient::CSMS_16BIT_TAGS),
   msg_ref_callback_(&SmppClient::DefaultMessageRef),
   state_(ClientState::OPEN),
+  ctx_(ctx),
   socket_(socket),
-  timer_(socket_->get_io_service()),
+  timer_(ctx_),
   seq_no_(0),
   pdu_queue_() {
   }
@@ -462,8 +463,8 @@ bool SmppClient::SocketPeek() {
   PduLengthHeader pdu_header;
   async_read(*socket_, asio::buffer(pdu_header),
       std::bind(&SmppClient::ReadPduHeaderHandler, this, _1, _2, &pdu_header));
-  size_t handlers_called = socket_->get_io_service().poll_one();
-  socket_->get_io_service().reset();
+  size_t handlers_called = ctx_.poll_one();
+  ctx_.reset();
   socket_->cancel();
   SocketExecute();
 
@@ -507,8 +508,8 @@ void SmppClient::WriteHandler(bool *callback_result, const error_code &error) {
 }
 
 void SmppClient::SocketExecute() {
-  socket_->get_io_service().run_one();
-  socket_->get_io_service().reset();
+  ctx_.run_one();
+  ctx_.reset();
 }
 
 void SmppClient::ReadPduHeaderHandler(const error_code &error, size_t len, const PduLengthHeader *pduLength) {

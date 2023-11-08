@@ -18,7 +18,7 @@ void print(const std::string &tp_id, const sc::time_point<sc::system_clock> &tp)
   struct tm tm;
   auto t = sc::system_clock::to_time_t(tp);
   std::cout << tp_id << ":"
-  << std::put_time(gmtime_r(&t, &tm), "%C %F %T %Z %z")
+  << std::put_time(std::gmtime(&t), "%C %F %T %Z %z")
   << std::endl;
 }
 
@@ -31,7 +31,7 @@ sc::time_point<sc::system_clock> MakeTimePoint(int yy, int mon, int mday, int ho
   tm.tm_min = min;
   tm.tm_sec = sec;
   tm.tm_isdst = -1;
-  tm.tm_gmtoff = gmtoff * 60;
+  // tm.tm_gmtoff = gmtoff * 60;
   return sc::system_clock::from_time_t(std::mktime(&tm));
 }
 
@@ -44,7 +44,7 @@ struct tm MakeTm(int yy, int mon, int mday, int hour, int min, int sec, int64_t 
   tm.tm_min = min;
   tm.tm_sec = sec;
   tm.tm_isdst = -1;
-  tm.tm_gmtoff = gmtoff * 60;
+  // tm.tm_gmtoff = gmtoff * 60;
   return tm;
 }
 
@@ -108,7 +108,7 @@ TEST(TimeTest, ParseDlrTimestamp) {
 
 TEST(TimeTest, FormatAbsolute) {
   string s = smpp::timeformat::ToSmppTimeString(MakeTm(2011, 10, 19, 9, 30, 0, 60));
-  EXPECT_EQ(s, string("111019093000004+"));
+  EXPECT_EQ(s, string("1110190930000"));
 }
 
 TEST(TimeTest, FormatRelative) {

@@ -10,9 +10,11 @@
 #include <string>
 #include <tuple>
 
-#include "./asio.hpp"
+#include <boost/asio.hpp>
+namespace asio = boost::asio;
+
 #include "./smppclient_test.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include "smpp/gsmencoding.h"
 #include "smpp/smpp_params.h"
 #include "smpp/timeformat.h"

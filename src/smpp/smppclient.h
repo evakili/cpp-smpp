@@ -19,7 +19,9 @@
 #include <utility>
 #include <vector>
 
-#include "asio.hpp"
+#include <boost/asio.hpp>
+namespace asio = boost::asio;
+
 #include "smpp/exceptions.h"
 #include "smpp/pdu.h"
 #include "smpp/smpp.h"
@@ -57,7 +59,7 @@ class SmppClient {
     CSMS_PAYLOAD, CSMS_16BIT_TAGS, CSMS_8BIT_UDH
   };
 
-  explicit SmppClient(std::shared_ptr<asio::ip::tcp::socket>);
+  explicit SmppClient(std::shared_ptr<asio::ip::tcp::socket>, asio::io_context& ctx);
   ~SmppClient();
 
   // Binds the client in transmitter mode.
@@ -180,12 +182,12 @@ class SmppClient {
 
   void ReadPduBlocking();
 
-  void HandleTimeout(bool *callback_result, const asio::error_code &error);
+  void HandleTimeout(bool *callback_result, const boost::system::error_code &error);
 
   // Async write handler.
   // @param
   // @throw TransportException if an error occurred.
-  void WriteHandler(bool *callback_result, const asio::error_code &error);
+  void WriteHandler(bool *callback_result, const boost::system::error_code &error);
 
   // Peeks at the socket and returns true if there is data to be read.
   //
@@ -199,16 +201,16 @@ class SmppClient {
 
   // Handler for reading a PDU header.
   // If we read a valid PDU header on the socket, the readPduBodyHandler is invoked.
-  void ReadPduHeaderHandler(const asio::error_code &error, size_t read,
+  void ReadPduHeaderHandler(const boost::system::error_code &error, size_t read,
                             const PduLengthHeader *pdu_length);
 
   void ReadPduHeaderHandlerBlocking(bool *callback_result,
-                                    const asio::error_code &error, size_t read,
+                                    const boost::system::error_code &error, size_t read,
                                     const PduLengthHeader *pdu_length);
 
   // Handler for reading a PDU body.
   // Reads a PDU body on the socket and pushes it onto the PDU queue.
-  void ReadPduBodyHandler(const asio::error_code &error, size_t read,
+  void ReadPduBodyHandler(const boost::system::error_code &error, size_t read,
                           const PduLengthHeader *pdu_length,
                           const PduData *pdu_buffer);
 
@@ -241,6 +243,7 @@ class SmppClient {
   int csms_method_;  // Method to use when dealing with concatenated messages.
   std::function<uint16_t()> msg_ref_callback_;
   ClientState state_;  // Bind state
+  asio::io_context& ctx_;
   std::shared_ptr<asio::ip::tcp::socket> socket_;
   smpp::ChronoDeadlineTimer timer_;
   uint32_t seq_no_;

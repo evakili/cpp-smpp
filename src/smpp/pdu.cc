@@ -3,8 +3,12 @@
 // @author hd@onlinecity.dk & td@onlinecity.dk
 
 #include "smpp/pdu.h"
+#ifdef WIN32
+#include <WinSock2.h>
+#else
 #include <netinet/in.h>
-#include <iostream>  //NOLINT
+#endif
+#include <iostream> //NOLINT
 #include <string>
 #include "smpp/hexdump.h"
 

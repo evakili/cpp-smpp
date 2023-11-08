@@ -1,45 +1,39 @@
-set(gtest_LIB ${GTEST_LIB_DIR}/${CMAKE_FIND_LIBRARY_PREFIXES}gtest.a)
-set(gtest_main_LIB ${GTEST_LIB_DIR}/${CMAKE_FIND_LIBRARY_PREFIXES}gtest_main.a)
-add_library(test_common OBJECT test_flags.h test_flags.cc)
+add_executable(unittest
+  test_flags.h
+  test_flags.cc
+  sms_test.cc
+  time_test.cc
+  time_test.cc
+  encoder_test.cc
+  pdu_test.cc
+  smpp_test.cc
+  main.cc)
+target_link_libraries(unittest PRIVATE smpp GTest::gtest)
+add_test(unittest unittest)
 
-# Add a single gtest
-function(add_gtest name libs)
-  set (test_bin ${name}_test)
-  add_executable(${test_bin} $<TARGET_OBJECTS:compiled> $<TARGET_OBJECTS:test_common> ${name}_test.cc ${ARGN} main.cc)
-  target_link_libraries(${test_bin} ${link_libs})
-  foreach (lib "${libs}")
-    target_link_libraries(${test_bin} ${lib} )
-  endforeach()
-  add_dependencies(${test_bin} googletest)
-  add_test(${name} ${CMAKE_BINARY_DIR}/bin/${test_bin})
-endfunction()
+add_executable(smppclient_test
+  test_flags.h
+  test_flags.cc
+  smppclient_test.cc
+  smppclient_test.h
+  main.cc)
+target_link_libraries(smppclient_test PRIVATE smpp GTest::gtest)
+add_test(smppclient_test smppclient_test)
 
-# Add a list of gtests, with global SetUp/TearDown
-function(add_gtests)
-  foreach (testname ${ARGN})
-    list (APPEND testsrcs "${testname}_test.cc")
-  endforeach()
-  add_executable(unittest $<TARGET_OBJECTS:compiled> $<TARGET_OBJECTS:test_common> ${testsrcs} main.cc)
-  target_link_libraries(unittest ${link_libs} ${gtest_LIB})
-  add_dependencies(unittest googletest)
-  add_test(unittest ${CMAKE_BINARY_DIR}/bin/unittest)
-endfunction()
+add_executable(smppclient_receive_test
+  test_flags.h
+  test_flags.cc
+  smppclient_receive_test.cc
+  smppclient_test.h
+  main.cc)
+target_link_libraries(smppclient_receive_test PRIVATE smpp GTest::gtest)
+add_test(smppclient_receive_test smppclient_receive_test)
 
-add_custom_target(test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/unittest DEPENDS compiled)
-
-## Use these to add a single target with optional extra libs and sources
-# add_gtest(redis ${gtest_LIB} main.cc)
-# add_gtest(other "${gtest_LIB};${gtest_main_LIB}")
-
-# Build a single binary (unittest) that performs all unit tests
-add_gtests(
-  sms
-  time
-  encoder
-  pdu
-  smpp
-  )
-
-add_gtest(smppclient ${gtest_LIB})
-add_gtest(smppclient_receive ${gtest_LIB})
-add_gtest(smppclient_send ${gtest_LIB})
+add_executable(smppclient_send_test
+  test_flags.h
+  test_flags.cc
+  smppclient_send_test.cc
+  smppclient_test.h
+  main.cc)
+target_link_libraries(smppclient_send_test PRIVATE smpp GTest::gtest)
+add_test(smppclient_send_test smppclient_send_test)

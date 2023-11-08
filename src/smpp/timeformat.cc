@@ -27,7 +27,6 @@ std::chrono::time_point<std::chrono::system_clock> ParseDlrTimestamp(const std::
   tm.tm_min = (ts[8] - '0') * 10 + (ts[9] - '0');
   tm.tm_isdst = -1;  // Set to avoid garbage.
   tm.tm_sec = 0;     // Set to avoid garbage.
-  tm.tm_gmtoff = 0;
   return std::chrono::system_clock::from_time_t(std::mktime(&tm));
 }
 
@@ -64,8 +63,6 @@ std::chrono::time_point<std::chrono::system_clock> ParseAbsoluteTimestamp(const 
   tm.tm_min = min;
   tm.tm_sec = sec;
   tm.tm_isdst = -1;
-  int offset_sign = match[9].compare("+") ? 1 : -1;
-  tm.tm_gmtoff = offset_sign * ((offset_hours * 60 * 60) + (offset_minutes * 60));
 
   return std::chrono::system_clock::from_time_t(mktime(&tm));
 }
@@ -104,12 +101,9 @@ string ToSmppTimeString(const struct tm &tm) {
   int h = tm.tm_hour;
   int m = tm.tm_min;
   int s = tm.tm_sec;
-  string p = tm.tm_gmtoff < 0 ? "-" : "+";
-  // nn is time difference in quarter hours and gmtoff is in seconds
-  int nn = tm.tm_gmtoff == 0 ? 0 : (std::abs(tm.tm_gmtoff) / 60)  / 15;
   char buf[17];
   //                               YY  MM  DD  hh   mm   ss  000R
-  std::snprintf(buf, sizeof(buf), "%02i%02i%02i%02i%02i%02i0%02i%s", yy, mm, dd, h, m, s, nn, p.c_str());
+  std::snprintf(buf, sizeof(buf), "%02i%02i%02i%02i%02i%02i0", yy, mm, dd, h, m, s);
   return string(buf);
 }
 
