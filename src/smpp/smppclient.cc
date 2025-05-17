@@ -464,7 +464,7 @@ bool SmppClient::SocketPeek() {
   async_read(*socket_, asio::buffer(pdu_header),
       std::bind(&SmppClient::ReadPduHeaderHandler, this, _1, _2, &pdu_header));
   size_t handlers_called = ctx_.poll_one();
-  ctx_.reset();
+  ctx_.restart();
   socket_->cancel();
   SocketExecute();
 
@@ -509,7 +509,7 @@ void SmppClient::WriteHandler(bool *callback_result, const error_code &error) {
 
 void SmppClient::SocketExecute() {
   ctx_.run_one();
-  ctx_.reset();
+  ctx_.restart();
 }
 
 void SmppClient::ReadPduHeaderHandler(const error_code &error, size_t len, const PduLengthHeader *pduLength) {
